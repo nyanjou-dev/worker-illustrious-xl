@@ -1,0 +1,11 @@
+{
+  "input": {
+    "prompt": "cat",
+    "height": 256,
+    "width": 256,
+    "num_inference_steps": 1,
+    "guidance_scale": 1.0,
+    "seed": 1,
+    "num_images": 1
+  }
+}

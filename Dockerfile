@@ -32,7 +32,7 @@ COPY requirements.txt /requirements.txt
 RUN uv pip install -r /requirements.txt
 
 # copy files
-COPY download_weights.py schemas.py handler.py /
+COPY download_weights.py schemas.py handler.py test_input.json /
 
 # HuggingFace token (passed as build arg for private/gated models)
 ARG HF_TOKEN=""
