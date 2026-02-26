@@ -25,7 +25,7 @@ from schemas import INPUT_SCHEMA
 
 torch.cuda.empty_cache()
 
-MODEL_ID = "Liberata/illustrious-xl-v1.0"
+MODEL_ID = "Bercraft/Illustrious-XL-v2.0-FP16-Diffusers"
 
 
 class ModelHandler:

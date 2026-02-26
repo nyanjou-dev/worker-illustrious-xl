@@ -3,7 +3,7 @@ from diffusers import (
     StableDiffusionXLPipeline,
 )
 
-MODEL_ID = "Liberata/illustrious-xl-v1.0"
+MODEL_ID = "Bercraft/Illustrious-XL-v2.0-FP16-Diffusers"
 
 
 def fetch_pretrained_model(model_class, model_name, **kwargs):
