@@ -1,10 +1,10 @@
 {
   "input": {
-    "prompt": "1girl, white hair, fox ears, shrine maiden, detailed face, masterpiece, best quality",
-    "negative_prompt": "blurry, low quality, deformed, ugly, text, watermark, signature, bad anatomy, worst quality",
-    "height": 1024,
-    "width": 1024,
-    "num_inference_steps": 28,
+    "prompt": "1girl, white hair, fox ears, masterpiece",
+    "negative_prompt": "blurry, low quality",
+    "height": 512,
+    "width": 512,
+    "num_inference_steps": 10,
     "guidance_scale": 7.0,
     "seed": 42,
     "scheduler": "K_EULER_ANCESTRAL",
