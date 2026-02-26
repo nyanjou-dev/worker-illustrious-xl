@@ -43,9 +43,16 @@ class ModelHandler:
             local_files_only=True,
         ).to("cuda")
 
-        # Enable memory optimizations
-        base_pipe.enable_xformers_memory_efficient_attention()
-        base_pipe.enable_model_cpu_offload()
+        # Warm up the model with a tiny inference so test doesn't timeout
+        print("Warming up model...", flush=True)
+        _ = base_pipe(
+            prompt="test",
+            height=64,
+            width=64,
+            num_inference_steps=1,
+            output_type="latent",
+        )
+        print("Model warm-up complete!", flush=True)
 
         return base_pipe
 
