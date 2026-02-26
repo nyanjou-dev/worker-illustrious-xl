@@ -1,9 +1,9 @@
 import torch
 from diffusers import (
     StableDiffusionXLPipeline,
-    StableDiffusionXLImg2ImgPipeline,
-    AutoencoderKL,
 )
+
+MODEL_ID = "Liberata/illustrious-xl-v1.0"
 
 
 def fetch_pretrained_model(model_class, model_name, **kwargs):
@@ -25,29 +25,20 @@ def fetch_pretrained_model(model_class, model_name, **kwargs):
 
 def get_diffusion_pipelines():
     """
-    Fetches the Stable Diffusion XL pipelines from the HuggingFace model hub.
+    Fetches the Illustrious XL v1.0 pipeline from the HuggingFace model hub.
     """
     common_args = {
         "torch_dtype": torch.float16,
-        "variant": "fp16",
         "use_safetensors": True,
     }
 
     pipe = fetch_pretrained_model(
         StableDiffusionXLPipeline,
-        "stabilityai/stable-diffusion-xl-base-1.0",
-        **common_args,
-    )
-    vae = fetch_pretrained_model(
-        AutoencoderKL, "madebyollin/sdxl-vae-fp16-fix", **{"torch_dtype": torch.float16}
-    )
-    refiner = fetch_pretrained_model(
-        StableDiffusionXLImg2ImgPipeline,
-        "stabilityai/stable-diffusion-xl-refiner-1.0",
+        MODEL_ID,
         **common_args,
     )
 
-    return pipe, refiner, vae
+    return pipe
 
 
 if __name__ == "__main__":

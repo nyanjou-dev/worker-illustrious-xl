@@ -34,7 +34,11 @@ RUN uv pip install -r /requirements.txt
 # copy files
 COPY download_weights.py schemas.py handler.py test_input.json /
 
-# download the weights from hugging face
+# HuggingFace token (passed as build arg for private/gated models)
+ARG HF_TOKEN=""
+ENV HF_TOKEN=${HF_TOKEN}
+
+# download Illustrious XL v1.0 weights from HuggingFace
 RUN python /download_weights.py
 
 # run the handler

@@ -1,78 +1,93 @@
-![SDXL Worker Banner](https://cpjrphpz3t5wbwfe.public.blob.vercel-storage.com/worker-sdxl_banner-c7nsJLBOGHnmsxcshN7kSgALHYawnW.jpeg)
+# worker-illustrious-xl
+
+A [RunPod](https://runpod.io) serverless worker for **Illustrious XL v1.0** — a high-quality anime-focused SDXL-based model by [Liberata](https://huggingface.co/Liberata/illustrious-xl-v1.0).
+
+Built on top of the [worker-sdxl](https://github.com/runpod-workers/worker-sdxl) template, adapted to use Illustrious XL instead of the base SDXL pipeline. The refiner stage has been removed — Illustrious XL produces high-quality results in a single pass.
 
 ---
 
-Run [Stable Diffusion XL](https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0) as a serverless endpoint to generate images.
+## API
+
+### Input
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `prompt` | string | — | Generation prompt |
+| `negative_prompt` | string | `null` | Negative prompt |
+| `width` | int | `1024` | Output width in pixels |
+| `height` | int | `1024` | Output height in pixels |
+| `num_inference_steps` | int | `28` | Number of denoising steps |
+| `guidance_scale` | float | `7.0` | CFG scale |
+| `scheduler` | string | `K_EULER_ANCESTRAL` | Scheduler (see below) |
+| `seed` | int | random | RNG seed |
+| `num_images` | int | `1` | Number of images (max 2) |
+
+**Supported schedulers:** `PNDM`, `KLMS`, `DDIM`, `K_EULER`, `K_EULER_ANCESTRAL`, `DPMSolverMultistep`, `DPMSolverSinglestep`
+
+### Output
+
+```json
+{
+  "images": ["data:image/png;base64,..."],
+  "image_url": "data:image/png;base64,...",
+  "seed": 42
+}
+```
+
+If `BUCKET_ENDPOINT_URL` is set in the environment, images are uploaded to S3-compatible storage and URLs are returned instead of base64.
 
 ---
 
-[![RunPod](https://api.runpod.io/badge/runpod-workers/worker-sdxl)](https://www.runpod.io/console/hub/runpod-workers/worker-sdxl)
-
----
-
-## Usage
-
-The worker accepts the following input parameters:
-
-| Parameter                 | Type    | Default  | Required  | Description                                                                                                         |
-| :------------------------ | :------ | :------- | :-------- | :------------------------------------------------------------------------------------------------------------------ |
-| `prompt`                  | `str`   | `None`   | **Yes\*** | The main text prompt describing the desired image.                                                                  |
-| `negative_prompt`         | `str`   | `None`   | No        | Text prompt specifying concepts to exclude from the image                                                           |
-| `height`                  | `int`   | `1024`   | No        | The height of the generated image in pixels                                                                         |
-| `width`                   | `int`   | `1024`   | No        | The width of the generated image in pixels                                                                          |
-| `seed`                    | `int`   | `None`   | No        | Random seed for reproducibility. If `None`, a random seed is generated                                              |
-| `scheduler`               | `str`   | `'DDIM'` | No        | The noise scheduler to use. Options include `PNDM`, `KLMS`, `DDIM`, `K_EULER`, `DPMSolverMultistep`                 |
-| `num_inference_steps`     | `int`   | `25`     | No        | Number of denoising steps for the base model                                                                        |
-| `refiner_inference_steps` | `int`   | `50`     | No        | Number of denoising steps for the refiner model                                                                     |
-| `guidance_scale`          | `float` | `7.5`    | No        | Classifier-Free Guidance scale. Higher values lead to images closer to the prompt, lower values more creative       |
-| `strength`                | `float` | `0.3`    | No        | The strength of the noise added when using an `image_url` for image-to-image or refinement                          |
-| `image_url`               | `str`   | `None`   | No        | URL of an initial image to use for image-to-image generation (runs only refiner). If `None`, performs text-to-image |
-| `num_images`              | `int`   | `1`      | No        | Number of images to generate per prompt (Constraint: must be 1 or 2)                                                |
-| `high_noise_frac`         | `float` | `None`   | No        | Fraction of denoising steps performed by the base model (e.g., 0.8 for 80%). `denoising_end` for base               |
-
-> [!NOTE]  
-> `prompt` is required unless `image_url` is provided
-
-### Example Request
+## Example Input
 
 ```json
 {
   "input": {
-    "prompt": "A majestic steampunk dragon soaring through a cloudy sky, intricate clockwork details, golden hour lighting, highly detailed",
-    "negative_prompt": "blurry, low quality, deformed, ugly, text, watermark, signature",
+    "prompt": "1girl, white hair, fox ears, shrine maiden, detailed face, masterpiece, best quality",
+    "negative_prompt": "blurry, low quality, deformed, ugly, text, watermark, signature, bad anatomy, worst quality",
     "height": 1024,
     "width": 1024,
-    "num_inference_steps": 25,
-    "refiner_inference_steps": 50,
-    "guidance_scale": 7.5,
-    "strength": 0.3,
-    "high_noise_frac": 0.8,
-    "seed": 42,
-    "scheduler": "K_EULER",
-    "num_images": 1
+    "num_inference_steps": 28,
+    "guidance_scale": 7.0,
+    "scheduler": "K_EULER_ANCESTRAL",
+    "seed": 42
   }
 }
 ```
 
-which is producing an output like this:
+---
 
-```json
-{
-  "delayTime": 11449,
-  "executionTime": 6120,
-  "id": "447f10b8-c745-4c3b-8fad-b1d4ebb7a65b-e1",
-  "output": {
-    "image_url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABAAAAAQACAIAAADwf7zU...",
-    "images": [
-      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABAAAAAQACAIAAADwf7zU..."
-    ],
-    "seed": 42
-  },
-  "status": "COMPLETED",
-  "workerId": "462u6mrq9s28h6"
-}
+## Docker Build
+
+```bash
+docker build --build-arg HF_TOKEN=<your_hf_token> -t worker-illustrious-xl .
 ```
 
-and when you convert the base64-encoded image into an actual image, it looks like this:
+The `HF_TOKEN` build arg is passed through for model download. If the model is public, it can be omitted.
 
-<img src="https://cpjrphpz3t5wbwfe.public.blob.vercel-storage.com/worker-sdxl_output_1-AedTpZlz1eIwIgAEShlod6syLo6Jq6.jpeg" alt="SDXL Generated Image: 'A majestic steampunk dragon soaring through a cloudy sky, intricate clockwork details, golden hour lighting, highly detailed'" width="512" height="512">
+## Local Testing (RunPod)
+
+```bash
+docker run --gpus all -e RUNPOD_WEBHOOK_GET_JOB="" worker-illustrious-xl
+```
+
+Or with [runpod-python](https://github.com/runpod/runpod-python) test mode:
+
+```bash
+python handler.py --test_input test_input.json
+```
+
+---
+
+## Model
+
+- **Model**: [Liberata/illustrious-xl-v1.0](https://huggingface.co/Liberata/illustrious-xl-v1.0)
+- **Base arch**: Stable Diffusion XL
+- **Pipeline**: `StableDiffusionXLPipeline` (diffusers)
+- **No refiner** — single-pass generation
+
+---
+
+## License
+
+See [LICENSE](LICENSE).
